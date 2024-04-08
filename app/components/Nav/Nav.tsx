@@ -1,7 +1,7 @@
 import { getNotifications } from "@/app/actions/action";
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
-import NavbarComponent from "./NavComponent";
+import NavComponent from "./NavComponent";
 
 type notificationProps = {
     notifications: {
@@ -18,7 +18,7 @@ const Navbar = async () => {
 
 
     return (
-        <NavbarComponent notifications={res.notifications} />
+        <NavComponent notifications={res.notifications} />
     );
 }
 

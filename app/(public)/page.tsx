@@ -4,11 +4,12 @@ import CoursesComponent from "@/components/courses/courses";
 import FeaturesComponent from "@/components/features/features";
 import TeamComponent from "@/components/team/team";
 import TestimonialComponent from "@/components/testimonial/testimonial";
+import Hero from "../components/Nav/Hero";
 
 const LandingPage = () => {
     return (
         <div className="py-20">
-
+            <Hero />
 
             <div className="container-fluid facts py-5 pt-lg-0 mt-20">
                 <div className="container py-5 pt-lg-0 mt-20">

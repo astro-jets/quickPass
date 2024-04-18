@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 // import SidebarLinkGroup from "./SidebarLinkGroup";
 import { BsPeople, BsPersonStanding } from "react-icons/bs";
-import { IoCarSportSharp, IoFolderOpenSharp } from "react-icons/io5";
+import { IoCarSportSharp, IoFolderOpenOutline, IoFolderOpenSharp } from "react-icons/io5";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -194,6 +194,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 >
                   <IoFolderOpenSharp size={20} color={'#fff'} />
                   Courses
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/admin/applications"
+                  className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("applications") &&
+                    "bg-graydark dark:bg-meta-4"
+                    }`}
+                >
+                  <IoFolderOpenOutline size={20} color={'#fff'} />
+                  Applications
                 </Link>
               </li>
             </ul>

@@ -1,32 +1,32 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import NewInstructor from "@/components/NewInstructor/page";
 import { getUsersByType } from "@/app/actions/users";
-import InstructorsTable from "@/components/Tables/InstructorsTable";
+import CoursesTable from "@/components/Tables/CoursesTable";
+import NewCourse from "@/components/NewCourse/page";
+import { getcourses } from "@/app/actions/courses";
+import { CourseProps } from "@/types/course";
 
 export const metadata: Metadata = {
-    title: "Instructors",
+    title: "Courses",
     description: "This is the instructors page",
 };
 
-type instructorsType = {
-    id: string, name: string, email: string, role: string
-}[]
 
-const InstructorsPage = async () => {
-    const users = await getUsersByType('instructor')
-    const instructors: instructorsType = users.usersData;
+
+const CoursesPage = async () => {
+    const res = await getcourses();
+    const courses: CourseProps[] = res.courses;
     return (
         <DefaultLayout>
-            <Breadcrumb pageName="Instructors" />
-            <NewInstructor />
+            <Breadcrumb pageName="Courses" />
+            <NewCourse />
 
             <div className="flex flex-col gap-10">
-                <InstructorsTable instructors={instructors} />
+                <CoursesTable courses={courses} />
             </div>
         </DefaultLayout>
     );
 };
 
-export default InstructorsPage;
+export default CoursesPage;

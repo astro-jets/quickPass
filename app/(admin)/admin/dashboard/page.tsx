@@ -2,6 +2,7 @@ import ECommerce from "@/components/Dashboard/E-commerce";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { getUsers } from "@/app/actions/users";
+import { getAdminStats } from "@/app/actions/action";
 
 export const metadata: Metadata = {
   title: "Quick Pass Admin",
@@ -15,15 +16,10 @@ type dataProps = {
 }
 
 export default async function Home() {
-  const res = await getUsers();
-  const users: userType = res.usersData;
-  const students = users.filter(user => user.role == 'user')
-  const instructors = users.filter(user => user.role == 'instructor')
-  console.log("Students => ", students)
-  const data: dataProps = {
-    instructors: instructors.length.toString(),
-    students: students.length.toString()
-  }
+  // Get users
+  const res = await getAdminStats();
+  const data = res.stats;
+
   return (
     <>
       <DefaultLayout>

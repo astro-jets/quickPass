@@ -12,7 +12,11 @@ type statsType = {
 
 export const getUsers = async (): Promise<any> => {
   try {
-    const response = await fetch(`${process.env.ROOT_LINK}/api/users/all/`);
+    const response = await fetch(`${process.env.ROOT_LINK}/api/users/all/`, {
+      next: {
+        revalidate: 0,
+      },
+    });
     if (!response) {
       return "Couldnt find users";
     }

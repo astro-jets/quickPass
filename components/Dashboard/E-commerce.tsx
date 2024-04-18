@@ -7,10 +7,13 @@ import ChatCard from "../Chat/ChatCard";
 import TableOne from "../Tables/TableOne";
 import CardDataStats from "../CardDataStats";
 import MapOne from "../Maps/MapOne";
-import { BsCurrencyDollar, BsPersonStanding } from "react-icons/bs";
+import { BsCarFront, BsCurrencyDollar, BsPersonStanding } from "react-icons/bs";
 import { IoFolderOpenOutline } from "react-icons/io5";
 type dataProps = {
-  students: string, instructors: string
+  payments: string,
+  cars: string,
+  students: string,
+  instructors: string
 }
 const ECommerce = ({ data }: { data: dataProps }) => {
   return (
@@ -44,19 +47,19 @@ const ECommerce = ({ data }: { data: dataProps }) => {
           </svg>
         </CardDataStats>
 
-        <CardDataStats title="Total Payments" total="$452K">
-          <BsCurrencyDollar size={20} color={'#3C50E0'} />
+        <CardDataStats title="Total Cars" total={data.cars}>
+          <BsCarFront size={20} color={'#3C50E0'} />
         </CardDataStats>
 
-        <CardDataStats title="Total Lessons" total="20">
-          <IoFolderOpenOutline size={20} color={'#3C50E0'} />
+        <CardDataStats title="Total Payments" total={`K ${data.payments.toLocaleString()}`}>
+          <BsCurrencyDollar size={20} color={'#3C50E0'} />
         </CardDataStats>
       </div>
 
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
         <div className="col-span-12 space-y-4">
           <ChartOne />
-          <TableOne />
+          <ChartTwo />
         </div>
       </div>
     </>

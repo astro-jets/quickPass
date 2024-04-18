@@ -1,26 +1,30 @@
 // pages/api/ClientStats.ts//
 import dbConnect from "@/lib/db";
-import Subscription from "@/models/Subscription";
-import Claim from "@/models/Claim";
+import User from "@/models/User";
+import Car from "@/models/Car";
 import { NextResponse } from "next/server";
-import Service from "@/models/Service";
+import Application from "@/models/Application";
+import Course from "@/models/Course";
 
 export async function GET(req: Request) {
   try {
     await dbConnect();
 
-    const claimsCount = await Claim.countDocuments();
-    const subscriptionsCount = await Subscription.countDocuments();
-    const subscriptions = await Subscription.find();
+    const studentsCount = await User.countDocuments({ role: "user" });
+    const instructorsCount = await User.countDocuments({ role: "instructor" });
+    const carsCount = await Car.countDocuments();
+    const applications = await Application.find();
+
     let paymentsCount = 0;
-    for (let i = 0; i < subscriptions.length; i++) {
-      const subscription = subscriptions[i];
-      const service = await Service.findById(subscription.service);
-      paymentsCount += parseInt(service.price as string);
+    for (let i = 0; i < applications.length; i++) {
+      const application = applications[i];
+      const course = await Course.findById(application.course);
+      paymentsCount += parseInt(course.price as string);
     }
     const stats = {
-      claims: claimsCount,
-      subscriptions: subscriptionsCount,
+      students: studentsCount,
+      instructors: instructorsCount,
+      cars: carsCount,
       payments: paymentsCount,
     };
 
@@ -29,7 +33,7 @@ export async function GET(req: Request) {
     console.log("Zakanika => ", error);
     return NextResponse.json({
       status: false,
-      message: `Error fetching claim ${error}`,
+      message: `Error fetching User ${error}`,
     });
   }
 }

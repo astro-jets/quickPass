@@ -4,10 +4,16 @@ import { Schema, model } from "mongoose";
 
 const LessonSchema = new Schema(
   {
-    user: {
+    car: {
       type: String,
     },
-    course: {
+    instructor: {
+      type: String,
+    },
+    application: {
+      type: String,
+    },
+    date: {
       type: String,
     },
     status: {

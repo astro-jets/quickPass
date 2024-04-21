@@ -1,42 +1,35 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import Navbar from '@/app/components/Nav/Nav'
-import AuthProvider from '@/app/context/AuthProvider'
-import SideBar from '@/app/components/SideBar'
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata: Metadata = {
-  title: 'Direct Insurance',
-  description: "Malawi's leasing insurance",
-}
-
+"use client";
+import "jsvectormap/dist/css/jsvectormap.css";
+import "flatpickr/dist/flatpickr.min.css";
+import "@/css/satoshi.css";
+import "@/css/style.css";
+import React, { useEffect, useState } from "react";
+import Loader from "@/components/common/Loader";
+import AuthProvider from "@/app/context/AuthProvider";
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // const pathname = usePathname();
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 100);
+  }, []);
+
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body suppressHydrationWarning={true}>
         <AuthProvider>
-          <Navbar />
-          <main className="">
-            <div className="h-full w-full">
-              <div className="h-full w-full bg-white overflow-hidden flex flex-col rounded-xl  shadow-xl"  >
-                {/*  body */}
-                <div className="h-full flex justify-between mt-20">
-                  <SideBar />
-                  <div className="w-full h-full min-h-screen py-10  px-6">
-                    {children}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </main>
+          <div className="dark:bg-boxdark-2 dark:text-bodydark">
+            {loading ? <Loader /> : children}
+          </div>
         </AuthProvider>
       </body>
     </html>
-  )
+  );
 }

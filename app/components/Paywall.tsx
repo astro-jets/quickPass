@@ -1,20 +1,24 @@
 "use client"
 
 import { useState } from "react";
-import { newSubscription } from "../actions/subcriptions";
+import { newApplication } from "@/app/actions/Applications";
 import { useSession } from "next-auth/react";
 import SucessModal from "./SuccessModal";
 import { useRouter } from "next/navigation";
 
-type serviceProps = {
-    _id: string;
-    name: string;
+type courseProps = {
+    id: string;
+    title: string;
     price: string;
-    list: string[];
+    details: string;
 };
 
-const Paywall = ({ onClose, service }: { onClose: () => void, service: serviceProps }) => {
+const Paywall = ({ onClose, course, isOpen }: { isOpen: boolean, onClose: () => void, course: courseProps }) => {
+    if (!isOpen) {
+        return null;
+    }
     const { data: session, status } = useSession();
+    if (!session?.user) { return null }
     const [isLoading, setIsLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const router = useRouter();
@@ -22,12 +26,13 @@ const Paywall = ({ onClose, service }: { onClose: () => void, service: servicePr
     const handleClose = async () => {
         setIsLoading(false)
         setSuccess(false)
-        router.push('/subscriptions');
+        router.push('/applications');
     }
 
     const subscribe = async () => {
         setIsLoading(true)
-        const res = await newSubscription(service._id, session?.user?.id!)
+        const res = await newApplication({ user: session.user.id, course: course.id })
+        console.log("Registration Response => ", res);
         if (res) {
             setSuccess(true)
             setIsLoading(false)
@@ -36,12 +41,12 @@ const Paywall = ({ onClose, service }: { onClose: () => void, service: servicePr
     if (!session?.user) { return }
     return (
         <>
-            <div className="relative z-40" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div className="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-                <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                    <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div className="fixed -top-[1vh] flex items-center justify-center bg-[#4c00ff25] inset-0 z-10 w-screen overflow-y-auto">
+                    <div className="flex min-h-full w-[60%] items-end justify-center px-4 text-center sm:items-center sm:p-0">
                         <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg min-w-[80rem]">
-                            <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 w-full">
+                            <div className="bg-white px-4 pb-2  sm:p-6 sm:pb-4 w-full">
                                 <div className="font-[sans-serif] bg-white p-4">
                                     <div className="lg:max-w-7xl max-w-xl mx-auto">
                                         <div className="grid lg:grid-cols-3 gap-10">
@@ -92,7 +97,7 @@ const Paywall = ({ onClose, service }: { onClose: () => void, service: servicePr
                                                         <button onClick={onClose} type="button" className="min-w-[150px] px-6 py-3.5 text-sm bg-blue-700 text-white rounded-md hover:bg-gray-200">Back</button>
                                                         {!isLoading ?
                                                             <button onClick={() => { subscribe() }} type="button" className="min-w-[150px] px-6 py-3.5 text-sm bg-[#333] text-white rounded-md hover:bg-[#111]">
-                                                                Confirm payment K{service.price}
+                                                                Confirm payment K {parseInt(course.price).toLocaleString()}
                                                             </button> :
                                                             <button type="button" className="min-w-[150px] px-6 py-3.5 text-sm bg-[#333] text-white rounded-md hover:bg-[#111]" disabled>
                                                                 <span className="animate-spin inline-block size-7 border-[5px] border-current border-t-transparent text-white rounded-full" role="status" aria-label="loading"></span>
@@ -103,14 +108,13 @@ const Paywall = ({ onClose, service }: { onClose: () => void, service: servicePr
                                                 </form>
                                             </div>
                                             <div className="bg-gray-100 px-6 py-8 rounded-md">
-                                                <h2 className="text-2xl font-extrabold text-[#333]">{service.name}</h2>
+                                                <h2 className="text-2xl font-extrabold text-[#333]">{course.title}</h2>
                                                 <ul className="text-[#333] mt-10 space-y-6">
                                                     {
-                                                        service.list.map(item => (
-                                                            <li className="flex flex-wrap gap-4 text-base">{item}</li>
-                                                        ))
+
+                                                        <li className="flex flex-wrap gap-4 text-base">{course.details}</li>
                                                     }
-                                                    <li className="flex flex-wrap gap-4 text-base font-bold border-t-2 pt-4">Total <span className="ml-auto">K {service.price}</span></li>
+                                                    <li className="flex flex-wrap gap-4 text-base font-bold border-t-2 pt-4">Total <span className="ml-auto">K {parseInt(course.price).toLocaleString()}</span></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -123,9 +127,9 @@ const Paywall = ({ onClose, service }: { onClose: () => void, service: servicePr
             </div>
             <SucessModal
                 isOpen={success}
-                message={`Successfully subscribed to ${service.name}`}
+                message={`Successfully registerd to ${course.title} course.`}
                 onClose={() => { handleClose() }}
-                title="Subscription Successfull"
+                title="Registration Successfull"
                 url=""
             />
         </>

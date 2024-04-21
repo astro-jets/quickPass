@@ -7,10 +7,10 @@ import { BsDoorOpen, BsPersonCircle } from "react-icons/bs";
 import { IoSpeedometerOutline } from "react-icons/io5";
 
 type notificationProps = {
-    _id: string,
+    id: string,
     title: string,
     description: string
-}[]
+}
 
 
 const NavComponent = ({ notifications }: { notifications: notificationProps }) => {

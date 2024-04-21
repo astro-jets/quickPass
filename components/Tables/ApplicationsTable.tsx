@@ -5,13 +5,30 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Loader from "../common/Loader";
 import { ApplicationProps } from "@/types/application";
-import { IoFolderOpenSharp } from "react-icons/io5";
+import { userProps } from "@/types/user";
+import { CarProps } from "@/types/car";
+import { BsCarFront, BsPersonStanding } from "react-icons/bs";
+import DatePickerOne from "../FormElements/DatePicker/DatePickerOne";
+import { newLesson } from "@/app/actions/Lessons";
+import ErrorModal from "@/app/components/ErrorModal";
 
-const CoursesTable = ({ applications }: { applications: ApplicationProps[] }) => {
+const CoursesTable = ({ applications, instructors, cars }: {
+  applications: ApplicationProps[]; instructors: userProps[]; cars: CarProps[]
+}) => {
+  const [modalMsg, setModalMsg] = useState('')
   const [showModal, setShowModal] = useState(false);
+  const [showErrModal, setShowErrModal] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [application, setSelectedApplication] = useState<string>("");
+  const [selectedOption, setSelectedOption] = useState<string>("");
+  const [selectedOption2, setSelectedOption2] = useState<string>("");
+  const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
+
+  const changeTextColor = () => {
+    setIsOptionSelected(true);
+  };
 
   const handleDelete = async (id: string) => {
     setLoading(true)
@@ -21,14 +38,54 @@ const CoursesTable = ({ applications }: { applications: ApplicationProps[] }) =>
     }
     setLoading(false)
   }
+
+  const handleClick = async (id: string) => {
+    setShowForm(!showForm)
+    setSelectedApplication(id);
+  }
+  const submit = async (formData: FormData) => {
+    const instructor = formData.get('instructor');
+    const car = formData.get('car');
+    const date = formData.get('date');
+    const data = { car, date, instructor, application }
+    console.log(data)
+    if (!car || !date || !instructor) {
+      alert("All filed must be filled")
+      return
+    }
+    const res = await newLesson(data);
+    if (res) {
+      setModalMsg(res.message)
+      if (res.status) { setShowModal(true); return; }
+      setShowErrModal(true)
+    }
+  }
   return (
     <>
       <SucessModal
         isOpen={showModal}
-        title="User deleted"
-        message="Instructor deleted successfully"
+        title="Lesson created"
+        message={modalMsg}
         onClose={() => {
+          setShowForm(false)
+          setSelectedOption('')
+          setSelectedApplication('')
+          setSelectedOption2('')
           setShowModal(false);
+          router.refresh();
+        }}
+        url=""
+      />
+      <ErrorModal
+        isOpen={showErrModal}
+        title="Error"
+        message={modalMsg}
+        onClose={() => {
+          setShowForm(false)
+          setSelectedOption('')
+          setSelectedApplication('')
+          setSelectedOption2('')
+          setShowErrModal(false);
           router.refresh();
         }}
         url=""
@@ -41,45 +98,124 @@ const CoursesTable = ({ applications }: { applications: ApplicationProps[] }) =>
               Create Lesson
             </h3>
           </div>
-          <form >
+          <form action={submit} >
             <div className="p-6.5">
-              <div className="mb-4.5">
-                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                  Select Instructor
-                </label>
-                <input
-                  type="text"
-                  placeholder="Course Name"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                />
-              </div>
-
-              <div className="mb-4.5">
+              <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Select Car
                 </label>
-                <input
-                  type="number"
-                  placeholder="Enter your email address"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                />
+
+                <div className="relative z-20 bg-white dark:bg-form-input">
+                  <span className="absolute left-4 top-1/2 z-30 -translate-y-1/2">
+                    <BsCarFront color="#3C50E0" size={20} />
+                  </span>
+
+                  <select
+                    value={selectedOption}
+                    name="car"
+                    onChange={(e) => {
+                      setSelectedOption(e.target.value);
+                      changeTextColor();
+                    }}
+                    className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent px-12 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input ${isOptionSelected ? "text-black dark:text-white" : ""
+                      }`}
+                  >
+                    <option value="" disabled className="text-body dark:text-bodydark">
+                      Select Car
+                    </option>
+
+                    {
+                      cars.map(i => (
+                        <option key={i._id} value={i._id} className="text-body dark:text-bodydark">
+                          {i.name}: {i.status}
+                        </option>
+                      ))
+                    }
+                  </select>
+
+                  <span className="absolute right-4 top-1/2 z-10 -translate-y-1/2">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g opacity="0.8">
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M5.29289 8.29289C5.68342 7.90237 6.31658 7.90237 6.70711 8.29289L12 13.5858L17.2929 8.29289C17.6834 7.90237 18.3166 7.90237 18.7071 8.29289C19.0976 8.68342 19.0976 9.31658 18.7071 9.70711L12.7071 15.7071C12.3166 16.0976 11.6834 16.0976 11.2929 15.7071L5.29289 9.70711C4.90237 9.31658 4.90237 8.68342 5.29289 8.29289Z"
+                          fill="#637381"
+                        ></path>
+                      </g>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  Select Instructor
+                </label>
+
+                <div className="relative z-20 bg-white dark:bg-form-input">
+                  <span className="absolute left-4 top-1/2 z-30 -translate-y-1/2">
+                    <BsPersonStanding size={20} color="#3C50E0" />
+                  </span>
+
+                  <select
+                    value={selectedOption2}
+                    name="instructor"
+                    onChange={(e) => {
+                      setSelectedOption2(e.target.value);
+                      changeTextColor();
+                    }}
+                    className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent px-12 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input ${isOptionSelected ? "text-black dark:text-white" : ""
+                      }`}
+                  >
+                    <option value="" disabled className="text-body dark:text-bodydark">
+                      Select Instructor
+                    </option>
+
+                    {
+                      instructors.map(i => (
+                        <option key={i.id} value={i.id} className="text-body dark:text-bodydark">
+                          {i.name}: {i.email}
+                        </option>
+                      ))
+                    }
+                  </select>
+
+                  <span className="absolute right-4 top-1/2 z-10 -translate-y-1/2">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g opacity="0.8">
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M5.29289 8.29289C5.68342 7.90237 6.31658 7.90237 6.70711 8.29289L12 13.5858L17.2929 8.29289C17.6834 7.90237 18.3166 7.90237 18.7071 8.29289C19.0976 8.68342 19.0976 9.31658 18.7071 9.70711L12.7071 15.7071C12.3166 16.0976 11.6834 16.0976 11.2929 15.7071L5.29289 9.70711C4.90237 9.31658 4.90237 8.68342 5.29289 8.29289Z"
+                          fill="#637381"
+                        ></path>
+                      </g>
+                    </svg>
+                  </span>
+                </div>
               </div>
 
 
               <div className="w-full flex justify-between mb-4">
                 <div className="w-[66%]">
-                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                    Set Schedule
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Course Name"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
+                  <DatePickerOne />
                 </div>
               </div>
 
-              <button type="button" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+              <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
               >
                 Create Lesson
               </button>
@@ -106,7 +242,7 @@ const CoursesTable = ({ applications }: { applications: ApplicationProps[] }) =>
             </thead>
             <tbody>
               {applications.map((application) => (
-                <tr key={application._id}>
+                <tr key={application.id}>
                   <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark xl:pl-11">
                     <h5 className="font-medium text-black dark:text-white">
                       {application.user.name}
@@ -121,7 +257,8 @@ const CoursesTable = ({ applications }: { applications: ApplicationProps[] }) =>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                     <div className="flex items-center space-x-3.5">
                       {/* View */}
-                      <button className="bg-primary rounded-lg text-white p-3" onClick={() => { setShowForm(!showForm) }}>
+                      <button className="bg-primary rounded-lg text-white p-3"
+                        onClick={() => { handleClick(application.id as string) }}>
                         {showForm ? "close" : "Create Lesson"}
                       </button>
                     </div>

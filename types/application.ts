@@ -1,5 +1,7 @@
+import { CourseProps } from "./course";
+
 export type ApplicationProps = {
-  _id?: string;
-  course: string;
+  id?: string;
+  course: CourseProps;
   user: { name: string; email: string };
 };

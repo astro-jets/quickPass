@@ -47,3 +47,18 @@ export const getApplicationByID = async (id: string): Promise<any> => {
     console.error(e);
   }
 };
+
+export const getApplicationByUser = async (id: string): Promise<any> => {
+  try {
+    const response = await fetch(
+      `${process.env.ROOT_LINK}/api/applications/user?user=${id}`,
+      {
+        next: { revalidate: 0 },
+      }
+    );
+    const res = await response.json();
+    return res;
+  } catch (e) {
+    console.error(e);
+  }
+};

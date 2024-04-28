@@ -2,7 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { BsHouse } from "react-icons/bs";
 
 const DropdownUser = () => {
   const { data: session, status } = useSession();
@@ -93,6 +94,15 @@ const DropdownUser = () => {
         <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
           <li>
             <Link
+              href="/"
+              className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+            >
+              <BsHouse color="gray" size={20} />
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/profile"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
             >
@@ -163,7 +173,9 @@ const DropdownUser = () => {
             </Link>
           </li>
         </ul>
-        <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+        <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+          onClick={() => { signOut() }}
+        >
           <svg
             className="fill-current"
             width="22"

@@ -10,6 +10,9 @@ export default withAuth(
       request.nextUrl.pathname.startsWith("/admin") &&
       request.nextauth.token?.role !== "instructor"
     ) {
+      if (request.nextauth.token?.role !== "instructor") {
+        return NextResponse.rewrite(new URL("/dashboard", request.url));
+      }
       return NextResponse.rewrite(new URL("/denied", request.url));
     }
   },

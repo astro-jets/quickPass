@@ -10,6 +10,10 @@ const ApplicationSchema = new Schema(
     course: {
       type: String,
     },
+    status: {
+      type: String,
+      default: "pending",
+    },
   },
   { timestamps: true }
 );

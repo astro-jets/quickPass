@@ -14,16 +14,20 @@ export async function GET(req: Request) {
     const id = searchParams.get("id");
 
     const applications = await Application.find({ user: id });
-    const lessons = await Lesson.find({ user: id });
 
     let paymentsCount = 0;
+    let lessonsCount = 0;
     for (let i = 0; i < applications.length; i++) {
       const application = applications[i];
+      const lessons = await Lesson.find({ application: application._id });
       const course = await Course.findById(application.course);
       paymentsCount += parseInt(course.price as string);
+      if (lessons.length) {
+        lessonsCount += 1;
+      }
     }
     const stats = {
-      lessons: applications.length,
+      lessons: lessonsCount,
       applications: applications.length,
       payments: paymentsCount,
     };

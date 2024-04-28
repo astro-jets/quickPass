@@ -29,11 +29,12 @@ export async function GET(req: Request) {
       const course = await Course.findById(application.course);
       applications.push({
         id: application._id as string,
+        status: application.status,
         user: {
           name: user.name,
           email: user.email,
         },
-        course: course.name,
+        course: course,
       });
     }
 

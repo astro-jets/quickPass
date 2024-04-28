@@ -1,6 +1,17 @@
 "use server";
 
-export const newLesson = async (formData: {}): Promise<any> => {
+import { compileTemplate, sendMail } from "@/lib/mail";
+
+type emailDataProps = {
+  name: string;
+  email: string;
+  url: string;
+};
+
+export const newLesson = async (
+  formData: {},
+  emailData: emailDataProps
+): Promise<any> => {
   try {
     const response = await fetch(`${process.env.ROOT_LINK}/api/lessons/new`, {
       method: "POST",
@@ -8,7 +19,21 @@ export const newLesson = async (formData: {}): Promise<any> => {
       cache: "no-store",
       body: JSON.stringify(formData),
     });
+
     const res = await response.json();
+    // Sending an email
+    if (res) {
+      await sendMail({
+        name: emailData.name,
+        subject: res.title as string,
+        to: emailData.email,
+        body: compileTemplate(
+          emailData.name,
+          emailData.url,
+          res.message as string
+        ),
+      });
+    }
     return res;
   } catch (e) {
     console.error(e);

@@ -5,6 +5,7 @@ import { newApplication } from "@/app/actions/Applications";
 import { useSession } from "next-auth/react";
 import SucessModal from "./SuccessModal";
 import { useRouter } from "next/navigation";
+import ErrorModal from "./ErrorModal";
 
 type courseProps = {
     id: string;
@@ -21,26 +22,44 @@ const Paywall = ({ onClose, course, isOpen }: { isOpen: boolean, onClose: () => 
     if (!session?.user) { return null }
     const [isLoading, setIsLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [err, SetErr] = useState({ status: false, title: '', msg: '' });
     const router = useRouter();
 
     const handleClose = async () => {
+        setIsLoading(true)
         setIsLoading(false)
         setSuccess(false)
-        router.push('/applications');
+        isOpen = false;
+        if (!success) {
+            SetErr({ status: false, title: '', msg: '' })
+            router.refresh()
+        }
+        else {
+            router.push('/applications');
+        }
     }
 
     const subscribe = async () => {
         setIsLoading(true)
         const res = await newApplication({ user: session.user.id, course: course.id })
         console.log("Registration Response => ", res);
+        console.log(res)
         if (res) {
-            setSuccess(true)
-            setIsLoading(false)
+            if (res.status) {
+                setSuccess(true)
+                setIsLoading(false)
+                return;
+            }
+            SetErr({
+                status: true,
+                msg: res.message as string,
+                title: "Registration Failed"
+            })
         }
     }
     if (!session?.user) { return }
     return (
-        <>
+        <div className="w-screen h-screen">
             <div className="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
                 <div className="fixed -top-[1vh] flex items-center justify-center bg-[#4c00ff25] inset-0 z-10 w-screen overflow-y-auto">
@@ -52,7 +71,7 @@ const Paywall = ({ onClose, course, isOpen }: { isOpen: boolean, onClose: () => 
                                         <div className="grid lg:grid-cols-3 gap-10">
                                             <div className="lg:col-span-2 max-lg:order-1">
                                                 <form className="mt-16 min-w-[50rem]">
-                                                    <h2 className="text-2xl font-extrabold text-[#333]">Payment method</h2>
+                                                    <h2 className="text-2xl font-extrabold text-[#333]">Choose your payment method</h2>
                                                     <div className="grid gap-4 sm:grid-cols-2 mt-8">
                                                         <div className="flex items-center">
                                                             <input type="radio" className="w-5 h-5 cursor-pointer" id="card" checked />
@@ -101,18 +120,21 @@ const Paywall = ({ onClose, course, isOpen }: { isOpen: boolean, onClose: () => 
                                                             </button> :
                                                             <button type="button" className="min-w-[150px] px-6 py-3.5 text-sm bg-[#333] text-white rounded-md hover:bg-[#111]" disabled>
                                                                 <span className="animate-spin inline-block size-7 border-[5px] border-current border-t-transparent text-white rounded-full" role="status" aria-label="loading"></span>
-                                                                Subscribing
+                                                                Registering
                                                             </button>
                                                         }
                                                     </div>
                                                 </form>
                                             </div>
                                             <div className="bg-gray-100 px-6 py-8 rounded-md">
-                                                <h2 className="text-2xl font-extrabold text-[#333]">{course.title}</h2>
+                                                <h2 className="text-2xl mt-8 font-extrabold text-[#000] mb-8">Course Details</h2>
+
                                                 <ul className="text-[#333] mt-10 space-y-6">
                                                     {
-
-                                                        <li className="flex flex-wrap gap-4 text-base">{course.details}</li>
+                                                        <>
+                                                            <p className="text-lg font-extrabold text-[#444]">{course.title}</p>
+                                                            <li className="flex flex-wrap gap-4 text-base">{course.details}</li>
+                                                        </>
                                                     }
                                                     <li className="flex flex-wrap gap-4 text-base font-bold border-t-2 pt-4">Total <span className="ml-auto">K {parseInt(course.price).toLocaleString()}</span></li>
                                                 </ul>
@@ -132,7 +154,15 @@ const Paywall = ({ onClose, course, isOpen }: { isOpen: boolean, onClose: () => 
                 title="Registration Successfull"
                 url=""
             />
-        </>
+
+            <ErrorModal
+                isOpen={err.status}
+                title={err.title}
+                message={err.msg}
+                onClose={() => { handleClose() }}
+                url=""
+            />
+        </div>
 
     );
 }

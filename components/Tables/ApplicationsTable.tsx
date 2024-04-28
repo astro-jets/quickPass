@@ -12,6 +12,10 @@ import DatePickerOne from "../FormElements/DatePicker/DatePickerOne";
 import { newLesson } from "@/app/actions/Lessons";
 import ErrorModal from "@/app/components/ErrorModal";
 
+type appProp = {
+  id: string, name: string, email: string
+}
+
 const CoursesTable = ({ applications, instructors, cars }: {
   applications: ApplicationProps[]; instructors: userProps[]; cars: CarProps[]
 }) => {
@@ -21,7 +25,7 @@ const CoursesTable = ({ applications, instructors, cars }: {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const [application, setSelectedApplication] = useState<string>("");
+  const [application, setSelectedApplication] = useState<appProp>({ email: '', name: '', id: '', })
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [selectedOption2, setSelectedOption2] = useState<string>("");
   const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
@@ -39,25 +43,32 @@ const CoursesTable = ({ applications, instructors, cars }: {
     setLoading(false)
   }
 
-  const handleClick = async (id: string) => {
+  const handleClick = async (application: appProp) => {
     setShowForm(!showForm)
-    setSelectedApplication(id);
+    setSelectedApplication({ id: application.id, name: application.name, email: application.email });
   }
   const submit = async (formData: FormData) => {
     const instructor = formData.get('instructor');
     const car = formData.get('car');
     const date = formData.get('date');
-    const data = { car, date, instructor, application }
+    const id = application.id;
+    const data = { car, date, instructor, application: id }
+    const emailData = {
+      name: application.name,
+      email: application.email,
+      url: `http://localhost:3000/lessons`
+    }
     console.log(data)
     if (!car || !date || !instructor) {
       alert("All filed must be filled")
       return
     }
-    const res = await newLesson(data);
+    const res = await newLesson(data, emailData);
     if (res) {
       setModalMsg(res.message)
+      console.log("Res => ", res)
       if (res.status) { setShowModal(true); return; }
-      setShowErrModal(true)
+      else { setShowErrModal(true) }
     }
   }
   return (
@@ -69,7 +80,7 @@ const CoursesTable = ({ applications, instructors, cars }: {
         onClose={() => {
           setShowForm(false)
           setSelectedOption('')
-          setSelectedApplication('')
+          setSelectedApplication({ name: '', id: '', email: '' })
           setSelectedOption2('')
           setShowModal(false);
           router.refresh();
@@ -83,7 +94,7 @@ const CoursesTable = ({ applications, instructors, cars }: {
         onClose={() => {
           setShowForm(false)
           setSelectedOption('')
-          setSelectedApplication('')
+          setSelectedApplication({ name: '', id: '', email: '' })
           setSelectedOption2('')
           setShowErrModal(false);
           router.refresh();
@@ -94,14 +105,14 @@ const CoursesTable = ({ applications, instructors, cars }: {
       {showForm &&
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="border-b border-stroke px-6.5 py-4 dark:border-strokedark">
-            <h3 className="font-medium text-black dark:text-white">
+            <h3 className="font-medium text-black">
               Create Lesson
             </h3>
           </div>
           <form action={submit} >
             <div className="p-6.5">
               <div>
-                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                <label className="mb-3 block text-sm font-medium text-black">
                   Select Car
                 </label>
 
@@ -117,7 +128,7 @@ const CoursesTable = ({ applications, instructors, cars }: {
                       setSelectedOption(e.target.value);
                       changeTextColor();
                     }}
-                    className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent px-12 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input ${isOptionSelected ? "text-black dark:text-white" : ""
+                    className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent px-12 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input ${isOptionSelected ? "text-black" : ""
                       }`}
                   >
                     <option value="" disabled className="text-body dark:text-bodydark">
@@ -155,7 +166,7 @@ const CoursesTable = ({ applications, instructors, cars }: {
               </div>
 
               <div>
-                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                <label className="mb-3 block text-sm font-medium text-black">
                   Select Instructor
                 </label>
 
@@ -171,7 +182,7 @@ const CoursesTable = ({ applications, instructors, cars }: {
                       setSelectedOption2(e.target.value);
                       changeTextColor();
                     }}
-                    className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent px-12 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input ${isOptionSelected ? "text-black dark:text-white" : ""
+                    className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent px-12 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input ${isOptionSelected ? "text-black" : ""
                       }`}
                   >
                     <option value="" disabled className="text-body dark:text-bodydark">
@@ -228,14 +239,18 @@ const CoursesTable = ({ applications, instructors, cars }: {
           <table className="w-full table-auto">
             <thead>
               <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                <th className="min-w-[220px] px-4 py-4 font-medium text-black dark:text-white xl:pl-11">
+                <th className="min-w-[220px] px-4 py-4 font-medium text-black xl:pl-11">
                   Applicant
                 </th>
-                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
+                <th className="min-w-[150px] px-4 py-4 font-medium text-black">
                   Course
                 </th>
 
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                <th className="px-4 py-4 font-medium text-black">
+                  Status
+                </th>
+
+                <th className="px-4 py-4 font-medium text-black">
                   Actions
                 </th>
               </tr>
@@ -244,23 +259,37 @@ const CoursesTable = ({ applications, instructors, cars }: {
               {applications.map((application) => (
                 <tr key={application.id}>
                   <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark xl:pl-11">
-                    <h5 className="font-medium text-black dark:text-white">
+                    <h5 className="font-medium text-black">
                       {application.user.name}
                     </h5>
                     <p className="text-sm">Email: {application.user.email}</p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">
-                      {application.course}
+                    <p className="text-black">
+                      {application.course.name}
+                    </p>
+                  </td>
+                  <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                    <p className="text-black">
+                      {application.status}
                     </p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                     <div className="flex items-center space-x-3.5">
                       {/* View */}
-                      <button className="bg-primary rounded-lg text-white p-3"
-                        onClick={() => { handleClick(application.id as string) }}>
-                        {showForm ? "close" : "Create Lesson"}
-                      </button>
+
+                      {application.status == "approved" ? <p className=" text-red-500">Already approved</p> :
+                        <button className="bg-primary rounded-lg text-white p-3"
+                          onClick={() => {
+                            handleClick({
+                              id: application.id as string,
+                              name: application.user.name,
+                              email: application.user.email,
+                            })
+                          }}>
+                          {showForm ? "close" : "Create Lesson"}
+                        </button>
+                      }
                     </div>
                   </td>
                 </tr>

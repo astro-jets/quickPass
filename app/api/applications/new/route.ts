@@ -13,6 +13,17 @@ export async function POST(req: Request) {
       user,
     });
 
+    const existing = await Application.find({ course: course, user: user });
+    if (existing.length) {
+      return NextResponse.json(
+        {
+          status: false,
+          message: "You already applied for this course.",
+        },
+        { status: 500 }
+      );
+    }
+
     const application = await newApplication.save();
     if (application) {
       return NextResponse.json(

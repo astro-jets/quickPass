@@ -40,7 +40,7 @@ const applicationsPage = async () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {applications.map((application) => (
+                            {applications?.map((application) => (
                                 <tr key={application.id}>
                                     <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark xl:pl-11">
                                         <h5 className="font-medium text-black">

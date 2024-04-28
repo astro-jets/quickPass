@@ -20,10 +20,10 @@ const CoursesPage = async () => {
             <Breadcrumb pageName="Cars" />
             <NewCar />
 
-            <div className="flex flex-wrap gap-10">
+            <div className=" flex-wrap gap-10 grid grid-cols-3">
                 {
                     cars.map(car => (
-                        <div className="w-full md:w-1/2 lg:w-1/3">
+                        <div className="w-full">
                             <div className="mb-9 rounded-[20px] bg-white shadow-2 hover:shadow-lg">
                                 <div className="mb-8 overflow-hidden flex h-60 w-full items-center justify-center rounded-xl">
                                     <img className="object-cover w-full h-60" src={`/uploads/${car.path}`} alt="" />
@@ -32,7 +32,7 @@ const CoursesPage = async () => {
                                     <h4 className="mb-[14px] text-2xl font-semibold text-dark dark:text-white">
                                         {car.name}
                                     </h4>
-                                    <p className="text-primary text-lg"> {car.name}</p>
+                                    <p className="text-primary text-lg"> {car.plate}</p>
                                     <p className="text-dark-6">{car.description}</p>
                                 </div>
                             </div>

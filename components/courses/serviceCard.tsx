@@ -29,7 +29,7 @@ const ServiceCard = ({ id, price, icon, title, details }: { id: string; price: s
                     <button className="bg-primary p-2 w-full rounded-md  text-white"
                         onClick={() => { handleSignup() }}
                     >
-                        Register lesson
+                        Apply
                     </button>
                 </div>
             </div>

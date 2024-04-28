@@ -1,7 +1,10 @@
 // api/lessons/new
 import dbConnect from "@/lib/db";
+import Application from "@/models/Application";
+import Course from "@/models/Course";
 import Lesson from "@/models/Lesson";
 import Notification from "@/models/Notification";
+import User from "@/models/User";
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
@@ -29,17 +32,20 @@ export async function PATCH(req: Request) {
       );
     }
 
+    const application = await Application.findById(updatedLesson.application);
+
     console.log("Updated Lesson => ", updatedLesson);
-    // const user = updatedLesson.user;
-    // const title = `Lesson ${status}`;
-    // const description = `Your lesson ${updatedLesson.title} has been ${status}.`;
-    // const notification = new Notification({
-    //   user,
-    //   title,
-    //   description,
-    // });
-    // const newNotification = await notification.save();
-    // console.log("New Notification => ", newNotification);
+    const user = await User.findById(application.user);
+    const course = await Course.findById(application.course);
+    const date = updatedLesson.date;
+    const message = `Congratulations, your lessons for ${course.name} are now ${status}.`;
+    const notification = new Notification({
+      user: user._id,
+      date,
+      message,
+    });
+    const newNotification = await notification.save();
+    console.log("New Notification => ", newNotification);
 
     return NextResponse.json(
       {

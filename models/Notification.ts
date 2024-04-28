@@ -4,13 +4,10 @@ import { Schema, model } from "mongoose";
 
 const NotificationSchema = new Schema(
   {
-    user: {
-      type: mongoose.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    user: { type: String },
+    date: { type: String },
     title: { type: String },
-    description: { type: String },
+    message: { type: String },
     status: { type: String, default: "unread" },
   },
   { timestamps: true }

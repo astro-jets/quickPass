@@ -54,7 +54,8 @@ export const getlessons = async (): Promise<any> => {
 
 export const updateLesson = async (
   status: string,
-  id: string
+  id: string,
+  emailData: emailDataProps
 ): Promise<any> => {
   try {
     const response = await fetch(
@@ -65,6 +66,21 @@ export const updateLesson = async (
       }
     );
     const res = await response.json();
+    if (res) {
+      // Sending an email
+      if (res) {
+        await sendMail({
+          name: emailData.name,
+          subject: res.title as string,
+          to: emailData.email,
+          body: compileTemplate(
+            emailData.name,
+            emailData.url,
+            res.message as string
+          ),
+        });
+      }
+    }
     return res;
   } catch (e) {
     console.error(e);
